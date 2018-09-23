@@ -33,7 +33,7 @@ rivals = [
     'St Louis Blues',
     'Chicago Blackhawks',
     'Los Angeles Angels',
-    # 'Houston Astros',
+    'Houston Astros',
     'Seattle Mariners',
     'Oakland Athletics'
 ]
@@ -60,7 +60,7 @@ use_color = False
 color_time = False
 
 # use a black background
-black_bkgnd = False
+black_background = False
 
 # use bright (or bold) colors
 use_bright = False
@@ -75,21 +75,22 @@ def color(clr, text):
         :param text: the text string to color
         :return: the text with the proper ANSI prefix and suffix bytes
     """
-    global ANSI_PRE, ANSI_POST, ANSI_RESET, use_color, black_bkgnd, use_bright
     if not use_color:
         return text
-    bkgnd_color = ''
-    if black_bkgnd:
-        bkgnd_color = ';40'
+    background_color = ''
+    if black_background:
+        background_color = ';40'
     prefix = '0;'
     if use_bright:
         prefix = '1;'
 
-    return ANSI_PRE + prefix + str(clr) + bkgnd_color + ANSI_POST + text + ANSI_RESET
+    return ANSI_PRE + prefix + str(clr) + background_color + ANSI_POST + text + ANSI_RESET
 
 
 def test_ansi_colors():
-    global ANSI_PRE, ANSI_POST, ANSI_RESET
+    """
+    print out all combinations of ANSI color foregrounds and backgrounds
+    """
     for foreground in range(30, 38):
         output = ''
         str_f = str(foreground)
@@ -100,12 +101,22 @@ def test_ansi_colors():
 
 
 def datetime_from_utc_to_local(utc_datetime):
+    """
+    convert a datetime from UTC to local time
+    :param utc_datetime: datetime object of the game start time in UTC
+    :return: returns the datetime converted from UTC to local time
+    """
     now_timestamp = time.time()
     offset = datetime.fromtimestamp(now_timestamp) - datetime.utcfromtimestamp(now_timestamp)
     return utc_datetime + offset
 
 
 def get_game_time(game):
+    """
+    get the game time in local time
+    :param game: dictionary of a specific game
+    :return: returns the game start time converted from UTC to local time
+    """
     game_time_str = game['gameDate']  # 2018-03-03T18:00:00Z
     game_time = datetime.strptime(game_time_str, '%Y-%m-%dT%H:%M:%SZ')
 
@@ -113,7 +124,12 @@ def get_game_time(game):
 
 
 def get_teams(game):
-    global favorites, rivals
+    """
+    retrieve the two teams in this game and the notations indicating
+    if a favorite or rival team is involved
+    :param game: dictionary of a specific game
+    :return: returns a tuple containing team1, team2, and the game notations
+    """
     team1 = game['teams']['away']['team']['name']
     team2 = game['teams']['home']['team']['name']
     note1 = ' '
@@ -129,7 +145,7 @@ def get_teams(game):
     if team1 in rivals or team2 in rivals:
         note2 = '!'
 
-    # Add optional ANSI color sequences to favs and rivals team names
+    # Add optional ANSI color sequences to favorite and rival team names
     if team1 in favorites:
         team1 = color(GREEN, team1)
     if team2 in favorites:
@@ -143,7 +159,11 @@ def get_teams(game):
 
 
 def create_games_dict(all_games):
-    global WHITE, BLUE
+    """
+    create a dictionary of today's games with formatted descriptions
+    :param all_games: dictionary of today's games retrieved from the web api
+    :return: returns a dictionary of today's games with formatted descriptions
+    """
     game_dictionary = {}
     at_str = color(WHITE, ' at ')
     for game in all_games:
@@ -162,7 +182,8 @@ def create_games_dict(all_games):
         (team1, team2, notations) = get_teams(game)
 
         # Create the game description string
-        game_desc_str = color(WHITE, notations + '   ') + game_time_str + '  -  ' + team1 + at_str + team2
+        game_desc_str = color(WHITE, notations + '   ') + \
+                        game_time_str + '  -  ' + team1 + at_str + team2
 
         # Add the game to the games dictionary indexed by game start time
         game_dictionary[game_time.strftime('%H:%M') + team1] = game_desc_str
@@ -171,7 +192,12 @@ def create_games_dict(all_games):
 
 
 def print_todays_games(api_url, game_name):
-    global WHITE
+    """
+    print out today's games sorted by the game start time
+    :param api_url: the url of the sports api to use
+    :param game_name: game type string used in case the are no games
+    :return: returns nothing
+    """
 
     ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -196,26 +222,30 @@ def print_todays_games(api_url, game_name):
 
 # parse and process the command line
 def process_command_line(argv):
-    global use_color, black_bkgnd, color_time, use_bright
+    """
+    process the command line options arguments
+    :param argv: list of arguments passed on the command line
+    """
+    global use_color, black_background, color_time, use_bright
 
     index = 1
     while len(argv) > index:
         cmd = argv[index].upper()
         index += 1
-        if 'C' == cmd:
+        if cmd == 'C':
             use_color = True
-        if 'I' == cmd:
+        if cmd == 'I':
             use_bright = True
-        if 'K' == cmd:
-            black_bkgnd = True
-        if 'T' == cmd:
+        if cmd == 'K':
+            black_background = True
+        if cmd == 'T':
             color_time = True
-        if 'N' == cmd:
+        if cmd == 'N':
             use_color = False
-        if 'H' == cmd:
+        if cmd == 'H':
             api_url = 'https://statsapi.web.nhl.com/api/v1/schedule'
             print_todays_games(api_url, 'hockey')
-        if 'B' == cmd:
+        if cmd == 'B':
             api_url = 'https://statsapi.mlb.com/api/v1/schedule?sportId=1'
             print_todays_games(api_url, 'baseball')
 
