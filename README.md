@@ -16,7 +16,7 @@ Invoke the script using:
 
 ## Options:
 - i = Use Bright Colors to hightlight favorite or rival teams
-- k = Useblack background
+- k = Use black background
 - t = color the time bright white
 - c = use ANSI color in output (required for any other color related options)
 - n = stop using ANSI color in output
