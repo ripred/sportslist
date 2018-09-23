@@ -1,11 +1,11 @@
-# coding=utf-8
+# sports.py
 
-#
-# A python script to retrieve and print
-# the day's hockey and/or baseball games
-#
+"""
+A python script to retrieve and print
+the day's hockey and/or baseball games
+"""
+
 # 2018 - ++tmw
-#
 
 import sys
 import ssl
