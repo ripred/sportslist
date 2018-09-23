@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # coding=utf-8
 
 #
@@ -8,15 +7,13 @@
 # 2018 - ++tmw
 #
 
-import os, sys, urllib, json, string
+import sys
+import ssl
+import urllib.request
+import json
 from datetime import datetime
-from dateutil import tz
+import time
 
-# Create From/To time zone objects
-from_zone = tz.tzutc()
-to_zone = tz.tzlocal()
-
-now = datetime.now().time()
 
 # Set up lists of favorite teams and rival teams for both hockey and basebaall
 favorites = [   'Dallas Stars', 'Pittsburgh Penguins', 'Detroit Red Wings', 'Arizona Coyotes', 'Calgary Flames',
@@ -56,6 +53,14 @@ use_bright = False
 
 
 def color(clr, text):
+    """
+        function to wrap ANSI escape sequences around text
+        to set the display color of the text
+
+        :param clr: one of the color constants above
+        :param text: the text string to color
+        :return: the text with the proper ANSI prefix and suffix bytes
+    """
     global ANSI_PRE, ANSI_PORT, ANSI_RESET, use_color, black_bkgnd, use_bright
     if not use_color : return text
     bkgnd_color = ''
@@ -76,19 +81,18 @@ def test_ansi_colors():
             output += ANSI_PRE + str_f + ';' + str_b + ANSI_POST + str_f + '/' + str_b
         print(output + ANSI_RESET)
 
+def datetime_from_utc_to_local(utc_datetime):
+    now_timestamp = time.time()
+    offset = datetime.fromtimestamp(now_timestamp) - datetime.utcfromtimestamp(now_timestamp)
+    return utc_datetime + offset
 
 def get_game_time(game):
     global from_zone, to_zone
     game_time_str = game['gameDate']    # 2018-03-03T18:00:00Z
     game_time = datetime.strptime(game_time_str, '%Y-%m-%dT%H:%M:%SZ')
 
-    # Tell the datetime object that it's in UTC time zone since 
-    # python datetime objects are 'naive' by default
-    game_time = game_time.replace(tzinfo=from_zone)
-    
-    # Convert posted game time zone to the local time zone
-    return game_time.astimezone(to_zone)
-    
+    return datetime_from_utc_to_local(game_time)
+
 
 def get_teams(game):
     global favorites, rivals
@@ -141,7 +145,10 @@ def create_games_dict(all_games):
 
 def print_todays_games(api_url, game_name):
     global WHITE
-    response = urllib.urlopen(api_url)
+
+    ssl._create_default_https_context = ssl._create_unverified_context
+
+    response = urllib.request.urlopen(api_url)
     json_data = json.load(response)
     
     if 0 == json_data['totalGames']:
@@ -155,7 +162,7 @@ def print_todays_games(api_url, game_name):
     all_games = json_data['dates'][0]['games']
 
     game_dictionary = create_games_dict(all_games)
-    for game_time in sorted(game_dictionary.iterkeys()):
+    for game_time in sorted(game_dictionary.keys()):
         print(game_dictionary[game_time])
 
 
