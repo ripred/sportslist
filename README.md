@@ -21,7 +21,7 @@ Invoke the script using:
 - c = use ANSI color in output (required for any other color related options)
 - n = stop using ANSI color in output
 - h = include hockey games in output
-- b = include babseball games in output
+- b = include baseball games in output
 
 *Note that the option flags are evaluated in order and affect only the output
 specified (h or b) that comes after them.  This allows you to turn on and off
