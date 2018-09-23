@@ -1,6 +1,6 @@
 # Description
 
-This python script will retrieve today's MLB or NHL games and
+This python3 script will retrieve today's MLB or NHL games and
 display them ordered by start time, in your local time.
 
 You can edit the file to set your favorite teams and rivals in
@@ -12,7 +12,7 @@ This script is very useful in combination with GeekTool!
 
 Invoke the script using:
 
-#### `python sports.py [i k t c h b]`
+#### `python3 sports.py [i k t c h b]`
 
 ## Options:
 - i = Use Bright Colors to hightlight favorite or rival teams
@@ -29,5 +29,5 @@ output decorations while outputting the list.*
 
 ## Example Use:
 
-#### `python sports.py c t h`
+#### `python3 sports.py c t h`
 
