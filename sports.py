@@ -250,6 +250,5 @@ def process_command_line(argv):
             api_url = 'https://statsapi.mlb.com/api/v1/schedule?sportId=1'
             print_todays_games(api_url, 'baseball')
 
-
-process_command_line(sys.argv)
-# test_ansi_colors()
+if __name__ == "__main__":
+    process_command_line(sys.argv)
