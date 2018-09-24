@@ -14,7 +14,6 @@ import urllib.request
 import json
 from datetime import datetime
 import time
-from pprint import pprint as pp
 
 # Set up lists of favorite teams and rival teams for both hockey and baseball
 favorites = [
@@ -183,7 +182,7 @@ def create_games_dict(all_games):
 
         # Create the game description string
         game_desc_str = ''.join([color(WHITE, notations + '   '),
-                                 game_time_str, '  -  ', team1, 
+                                 game_time_str, '  -  ', team1,
                                  at_str, team2,])
 
         # Add the game to the games dictionary indexed by game start time
@@ -198,9 +197,9 @@ def create_test_data_file(filename, json_data):
     json_str = json_str.replace('False', '"False"')
     json_str = json_str.replace('True', '"True"')
     if json_str[0] == "'" and json_str[-1] == "'":
-        json_str = json_str[1, -1]
-    with open(filename, 'wt') as f:
-        f.write(json_str)
+        json_str = json_str[1:-1]
+    with open(filename, 'wt') as filehandle:
+        filehandle.write(json_str)
 
 
 def get_json_data(api_url):
@@ -228,7 +227,7 @@ def get_todays_games(json_data):
     of those keys sorted in ascending start time order.
 
     :param json_data: dictionary of games data from the web
-    :return: returns 
+    :return: returns a tuple of the game_dict, display_keys
     """
     # Sort the games based on start time and print them
     all_games = json_data['dates'][0]['games']
@@ -245,13 +244,13 @@ def output_todays_games(games_dict, key_list, sport_name):
     :param games_dict: the dictionary of gametimes to game descriptions
     :param key_list: list of gametime keys sorted in ascending order
     :param sport_name: game type string used in case the are no games
-    :return: returns 
+    :return: returns nothing
     """
-    if len(games_dict) == 0 or len(key_list) == 0:
+    if not games_dict or not key_list:
         output = ''
         if sport_name == 'hockey':
             output = 'Sorry.  ' # think like a Canadien :)
-        output += ''.join(i['There are no ', sport_name, ' games today'])
+        output += ''.join(['There are no ', sport_name, ' games today'])
         print(color(WHITE, '     ' + output))
         return
     for key in key_list:

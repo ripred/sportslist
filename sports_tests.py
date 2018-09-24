@@ -3,10 +3,8 @@
 
 import unittest
 import os
-import sys
 import json
 import urllib.request
-from pprint import pprint as pp
 import sports
 
 nhl_api_url = 'https://statsapi.web.nhl.com/api/v1/schedule'
@@ -17,6 +15,9 @@ class SportsTests(unittest.TestCase):
 
     def setUp(self):
         """Fixture that loads the test data for the unit tests to use."""
+
+        self.games_dict = {}
+        self.all_games = {}
 
         basepath = os.getcwd()
         filename = basepath + '/test.json'
@@ -29,8 +30,8 @@ class SportsTests(unittest.TestCase):
         del self.json_data
 
     def test_1_create_games_dict(self):
-        all_games = self.json_data['dates'][0]['games']
-        games_dict = sports.create_games_dict(all_games)
+        self.all_games = self.json_data['dates'][0]['games']
+        self.games_dict = sports.create_games_dict(self.all_games)
         self.assertEqual(sports.get_games_count(self.json_data), 8)
 
     def test_2_json_data_structure(self):
@@ -45,8 +46,8 @@ class SportsTests(unittest.TestCase):
     def test_3_games_times_ascending(self):
         last_key = ''
         all_games = self.json_data['dates'][0]['games']
-        games_dict = sports.create_games_dict(all_games)
-        for key in games_dict.keys():
+        self.games_dict = sports.create_games_dict(all_games)
+        for key in self.games_dict:
             self.assertGreaterEqual(key[:5], last_key)
             last_key = key[:5]
 
