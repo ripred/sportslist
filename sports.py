@@ -14,6 +14,7 @@ import urllib.request
 import json
 from datetime import datetime
 import time
+from pprint import pprint as pp
 
 # Set up lists of favorite teams and rival teams for both hockey and baseball
 favorites = [
@@ -23,8 +24,7 @@ favorites = [
     'Arizona Coyotes',
     'Calgary Flames',
     'Texas Rangers',
-    'Houston Astros'
-]
+    'Houston Astros',]
 
 rivals = [
     'Nashville Predators',
@@ -36,8 +36,7 @@ rivals = [
     'Los Angeles Angels',
     'Houston Astros',
     'Seattle Mariners',
-    'Oakland Athletics'
-]
+    'Oakland Athletics',]
 
 # ANSI color constant escape sequences:
 ANSI_PRE = '\x1b['
@@ -85,7 +84,7 @@ def color(clr, text):
     if use_bright:
         prefix = '1;'
 
-    return ANSI_PRE + prefix + str(clr) + background_color + ANSI_POST + text + ANSI_RESET
+    return ''.join([ANSI_PRE, prefix, str(clr), background_color, ANSI_POST, text, ANSI_RESET])
 
 
 def test_ansi_colors():
@@ -97,7 +96,7 @@ def test_ansi_colors():
         str_f = str(foreground)
         for background in range(40, 48):
             str_b = str(background)
-            output += ANSI_PRE + str_f + ';' + str_b + ANSI_POST + str_f + '/' + str_b
+            output += ''.join([ANSI_PRE, str_f, ';', str_b, ANSI_POST, str_f, '/', str_b])
         print(output + ANSI_RESET)
 
 
@@ -136,10 +135,10 @@ def get_teams(game):
     note1 = ' '
     note2 = ' '
 
-    if team1.find('Canadiens') >= 0:
-        team1 = 'Montreal Canadiens'
-    if team2.find('Canadiens') >= 0:
-        team2 = 'Montreal Canadiens'
+    # if team1.find('Canadiens') >= 0:
+    #     team1 = 'Montreal Canadiens'
+    # if team2.find('Canadiens') >= 0:
+    #     team2 = 'Montreal Canadiens'
 
     if team1 in favorites or team2 in favorites:
         note1 = '*'
@@ -183,42 +182,80 @@ def create_games_dict(all_games):
         (team1, team2, notations) = get_teams(game)
 
         # Create the game description string
-        game_desc_str = color(WHITE, notations + '   ') + \
-                        game_time_str + '  -  ' + team1 + at_str + team2
+        game_desc_str = ''.join([color(WHITE, notations + '   '),
+                                 game_time_str, '  -  ', team1, 
+                                 at_str, team2,])
 
         # Add the game to the games dictionary indexed by game start time
-        game_dictionary[game_time.strftime('%H:%M') + team1] = game_desc_str
+        gametime_key = game_time.strftime('%H:%M') + team1
+        game_dictionary[gametime_key] = game_desc_str
 
     return game_dictionary
 
 
-def print_todays_games(api_url, game_name):
-    """
-    print out today's games sorted by the game start time
-    :param api_url: the url of the sports api to use
-    :param game_name: game type string used in case the are no games
-    :return: returns nothing
-    """
+def create_test_data_file(filename, json_data):
+    json_str = str(json_data).replace("'", '"')
+    json_str = json_str.replace('False', '"False"')
+    json_str = json_str.replace('True', '"True"')
+    if json_str[0] == "'" and json_str[-1] == "'":
+        json_str = json_str[1, -1]
+    with open(filename, 'wt') as f:
+        f.write(json_str)
 
+
+def get_json_data(api_url):
+    json_data = {}
     ssl._create_default_https_context = ssl._create_unverified_context
+    with urllib.request.urlopen(api_url) as url:
+        http_info = url.info()
+        raw_data = url.read().decode(http_info.get_content_charset())
+        json_data = json.loads(raw_data)
+#   create_test_data_file('test.json', json_data)
+    return json_data
 
-    response = urllib.request.urlopen(api_url)
-    json_data = json.load(response)
 
-    if json_data['totalGames'] == 0:
-        output = ''
-        if game_name == 'hockey':
-            output += 'Sorry.  '
-        output += 'There are no ' + game_name + ' games today'
-        print(color(WHITE, '     ' + output))
-        return
+def get_games_count(json_data: dict):
+    total_games = 0
+    if 'totalGames' in json_data:
+        total_games = int(json_data['totalGames'])
+    return total_games
 
+
+def get_todays_games(json_data):
+    """
+    create a dictionary of game description strings
+    values with start time keys. Also create a list
+    of those keys sorted in ascending start time order.
+
+    :param json_data: dictionary of games data from the web
+    :return: returns 
+    """
     # Sort the games based on start time and print them
     all_games = json_data['dates'][0]['games']
-
     game_dictionary = create_games_dict(all_games)
-    for game_time in sorted(game_dictionary.keys()):
-        print(game_dictionary[game_time])
+    sorted_games = sorted(game_dictionary.keys())
+
+    return game_dictionary, sorted_games
+
+
+def output_todays_games(games_dict, key_list, sport_name):
+    """
+    output today's games and their start times in ascending order
+
+    :param games_dict: the dictionary of gametimes to game descriptions
+    :param key_list: list of gametime keys sorted in ascending order
+    :param sport_name: game type string used in case the are no games
+    :return: returns 
+    """
+    if len(games_dict) == 0 or len(key_list) == 0:
+        output = ''
+        if sport_name == 'hockey':
+            output = 'Sorry.  ' # think like a Canadien :)
+        output += ''.join(i['There are no ', sport_name, ' games today'])
+        print(color(WHITE, '     ' + output))
+        return
+    for key in key_list:
+        print(games_dict[key])
 
 
 # parse and process the command line
@@ -228,27 +265,33 @@ def process_command_line(argv):
     :param argv: list of arguments passed on the command line
     """
     global use_color, black_background, color_time, use_bright
+    nhl_api_url = 'https://statsapi.web.nhl.com/api/v1/schedule'
+    mlb_api_url = 'https://statsapi.mlb.com/api/v1/schedule?sportId=1'
+    json_data = {}
+    sport_name = ''
 
-    index = 1
-    while len(argv) > index:
-        cmd = argv[index].upper()
-        index += 1
+    for cmd in argv:
+        cmd = cmd.upper()
         if cmd == 'C':
             use_color = True
-        if cmd == 'I':
+        elif cmd == 'I':
             use_bright = True
-        if cmd == 'K':
+        elif cmd == 'K':
             black_background = True
-        if cmd == 'T':
+        elif cmd == 'T':
             color_time = True
-        if cmd == 'N':
+        elif cmd == 'N':
             use_color = False
-        if cmd == 'H':
-            api_url = 'https://statsapi.web.nhl.com/api/v1/schedule'
-            print_todays_games(api_url, 'hockey')
-        if cmd == 'B':
-            api_url = 'https://statsapi.mlb.com/api/v1/schedule?sportId=1'
-            print_todays_games(api_url, 'baseball')
+        elif cmd == 'H':
+            json_data = get_json_data(nhl_api_url)
+            sport_name = 'hockey'
+        elif cmd == 'B':
+            json_data = get_json_data(mlb_api_url)
+            sport_name = 'baseball'
+
+    if json_data:
+        games_dict, keys = get_todays_games(json_data)
+        output_todays_games(games_dict, keys, sport_name)
 
 if __name__ == "__main__":
     process_command_line(sys.argv)
