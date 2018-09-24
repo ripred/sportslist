@@ -28,11 +28,12 @@ class SportsTests(unittest.TestCase):
         """Fixture that removes the test data used by the unit tests."""
         del self.json_data
 
-    def test_function_runs(self):
-        """Basic smoke test: Does the function run?"""
-        sports.process_command_line(['sports.py', 'c', 't', 'h'])
+    def test_1_create_games_dict(self):
+        all_games = self.json_data['dates'][0]['games']
+        games_dict = sports.create_games_dict(all_games)
+        self.assertEqual(sports.get_games_count(self.json_data), 8)
 
-    def test_json_data_structure(self):
+    def test_2_json_data_structure(self):
         # peform basic sanity checks on the game dictionary structure
         self.assertTrue(isinstance(self.json_data, dict))
         self.assertTrue('dates' in self.json_data)
@@ -41,12 +42,7 @@ class SportsTests(unittest.TestCase):
         self.assertTrue(isinstance(self.json_data['dates'][0], dict))
         self.assertTrue('games' in self.json_data['dates'][0])
 
-    def test_create_games_dict(self):
-        all_games = self.json_data['dates'][0]['games']
-        self.games_dict = sports.create_games_dict(all_games)
-        self.assertEqual(sports.get_games_count(self.json_data), 8)
-
-    def test_games_times_ascending(self):
+    def test_3_games_times_ascending(self):
         last_key = ''
         all_games = self.json_data['dates'][0]['games']
         games_dict = sports.create_games_dict(all_games)
@@ -54,6 +50,10 @@ class SportsTests(unittest.TestCase):
             self.assertGreaterEqual(key[:5], last_key)
             last_key = key[:5]
 
+    def test_4_function_runs(self):
+        """Basic smoke test: Does the function run?"""
+        print()
+        sports.process_command_line(['sports.py', 'c', 't', 'h'])
+
 if __name__ == '__main__':
     unittest.main()
-
