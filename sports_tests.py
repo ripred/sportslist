@@ -1,19 +1,25 @@
+#!/usr/bin/env python3
+""" unit tests for sports.py """
+
 import unittest
+import os
+import sys
 import json
 import urllib.request
 from pprint import pprint as pp
-import ../sports
+import sports
 
 nhl_api_url = 'https://statsapi.web.nhl.com/api/v1/schedule'
 mlb_api_url = 'https://statsapi.mlb.com/api/v1/schedule?sportId=1'
 
 class SportsTests(unittest.TestCase):
-    """Tests for the ``process_command_line()`` function"""
+    """Tests for the ``sports.py`` functions."""
 
     def setUp(self):
         """Fixture that loads the test data for the unit tests to use."""
 
-        filename = '/Users/trent/dev/Python/hockey/test.json'
+        basepath = os.getcwd()
+        filename = basepath + '/test.json'
         with urllib.request.urlopen(''.join(['file://', filename])) as url:
             raw_data = url.read().decode('utf-8')
             self.json_data = json.loads(raw_data)
@@ -41,7 +47,12 @@ class SportsTests(unittest.TestCase):
         self.assertEqual(sports.get_games_count(self.json_data), 8)
 
     def test_games_times_ascending(self):
-        pass
+        last_key = ''
+        all_games = self.json_data['dates'][0]['games']
+        games_dict = sports.create_games_dict(all_games)
+        for key in games_dict.keys():
+            self.assertGreaterEqual(key[:5], last_key)
+            last_key = key[:5]
 
 if __name__ == '__main__':
     unittest.main()
