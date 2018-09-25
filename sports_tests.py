@@ -10,6 +10,7 @@ import sports
 nhl_api_url = 'https://statsapi.web.nhl.com/api/v1/schedule'
 mlb_api_url = 'https://statsapi.mlb.com/api/v1/schedule?sportId=1'
 
+
 class SportsTests(unittest.TestCase):
     """Tests for the ``sports.py`` functions."""
 
@@ -35,7 +36,7 @@ class SportsTests(unittest.TestCase):
         self.assertEqual(sports.get_games_count(self.json_data), 8)
 
     def test_2_json_data_structure(self):
-        # peform basic sanity checks on the game dictionary structure
+        # perform basic sanity checks on the game dictionary structure
         self.assertTrue(isinstance(self.json_data, dict))
         self.assertTrue('dates' in self.json_data)
         self.assertTrue(isinstance(self.json_data['dates'], list))
@@ -55,6 +56,7 @@ class SportsTests(unittest.TestCase):
         """Basic smoke test: Does the function run?"""
         print()
         sports.process_command_line(['sports.py', 'h'])
+
 
 if __name__ == '__main__':
     unittest.main()

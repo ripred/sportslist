@@ -23,7 +23,7 @@ favorites = [
     'Arizona Coyotes',
     'Calgary Flames',
     'Texas Rangers',
-    'Houston Astros',]
+    'Houston Astros']
 
 rivals = [
     'Nashville Predators',
@@ -35,7 +35,7 @@ rivals = [
     'Los Angeles Angels',
     'Houston Astros',
     'Seattle Mariners',
-    'Oakland Athletics',]
+    'Oakland Athletics']
 
 # ANSI color constant escape sequences:
 ANSI_PRE = '\x1b['
@@ -183,7 +183,7 @@ def create_games_dict(all_games):
         # Create the game description string
         game_desc_str = ''.join([color(WHITE, notations + '   '),
                                  game_time_str, '  -  ', team1,
-                                 at_str, team2,])
+                                 at_str, team2])
 
         # Add the game to the games dictionary indexed by game start time
         gametime_key = game_time.strftime('%H:%M') + team1
@@ -203,14 +203,13 @@ def create_test_data_file(filename, json_data):
 
 
 def get_json_data(api_url):
-    json_data = {}
     ssl._create_default_https_context = ssl._create_unverified_context
     with urllib.request.urlopen(api_url) as url:
         http_info = url.info()
         raw_data = url.read().decode(http_info.get_content_charset())
         json_data = json.loads(raw_data)
+        return json_data
 #   create_test_data_file('test.json', json_data)
-    return json_data
 
 
 def get_games_count(json_data: dict):
@@ -241,7 +240,7 @@ def output_todays_games(games_dict, key_list, sport_name):
     """
     output today's games and their start times in ascending order
 
-    :param games_dict: the dictionary of gametimes to game descriptions
+    :param games_dict: the dictionary of game times to game descriptions
     :param key_list: list of gametime keys sorted in ascending order
     :param sport_name: game type string used in case the are no games
     :return: returns nothing
@@ -249,7 +248,7 @@ def output_todays_games(games_dict, key_list, sport_name):
     if not games_dict or not key_list:
         output = ''
         if sport_name == 'hockey':
-            output = 'Sorry.  ' # think like a Canadien :)
+            output = 'Sorry.  '  # think like a Canadian :)
         output += ''.join(['There are no ', sport_name, ' games today'])
         print(color(WHITE, '     ' + output))
         return
@@ -291,6 +290,7 @@ def process_command_line(argv):
     if json_data:
         games_dict, keys = get_todays_games(json_data)
         output_todays_games(games_dict, keys, sport_name)
+
 
 if __name__ == "__main__":
     process_command_line(sys.argv)
