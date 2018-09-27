@@ -270,11 +270,16 @@ def process_command_line(argv):
 
     for cmd in argv:
         cmd = cmd.upper()
-        use_color = True if cmd == 'C'
-        use_bright = True if cmd == 'I'
-        black_background = True if cmd == 'K'
-        color_time = True if cmd == 'T'
-        use_color = False if cmd == 'N'
+        if cmd == 'C':
+            use_color = True
+        elif cmd == 'I':
+            use_bright = True
+        elif cmd == 'K':
+            black_background = True
+        elif cmd == 'T':
+            color_time = True
+        elif cmd == 'N':
+            use_color = False
         if cmd == 'H':
             json_data = get_json_data(nhl_api_url)
             sport_name = 'hockey'
