@@ -193,6 +193,11 @@ def create_games_dict(all_games):
 
 
 def create_test_data_file(filename, json_data):
+    """
+    create a file containing test data to use as input during unit tests
+    :param filename: the file name to write the data to
+    :param json_data: the json data to write to the test input file
+    """
     json_str = str(json_data).replace("'", '"')
     json_str = json_str.replace('False', '"False"')
     json_str = json_str.replace('True', '"True"')
@@ -203,6 +208,11 @@ def create_test_data_file(filename, json_data):
 
 
 def get_json_data(api_url):
+    """
+    retrieve the json data returned from the specified REST url
+    :param api_url: the url to retrieve the data from
+    :return: returns the json data as a string
+    """
     ssl._create_default_https_context = ssl._create_unverified_context
     with urllib.request.urlopen(api_url) as url:
         http_info = url.info()
@@ -213,6 +223,11 @@ def get_json_data(api_url):
 
 
 def get_games_count(json_data: dict):
+    """
+    get the number of games contained in the specified json data
+    :param json_data: a string containing the json data retrieved from a previous web REST api call
+    :return: returns the total number of games (0 if there are none)
+    """
     total_games = 0
     if 'totalGames' in json_data:
         total_games = int(json_data['totalGames'])
