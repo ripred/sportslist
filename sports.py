@@ -16,7 +16,7 @@ from datetime import datetime
 import time
 
 # Set up lists of favorite teams and rival teams for both hockey and baseball
-favorites = [
+FAVORITES = [
     'Dallas Stars',
     'Pittsburgh Penguins',
     'Detroit Red Wings',
@@ -25,7 +25,7 @@ favorites = [
     'Texas Rangers',
     'Houston Astros']
 
-rivals = [
+RIVALS = [
     'Nashville Predators',
     'Winnipeg Jets',
     'Minnesota Wild',
@@ -53,16 +53,16 @@ WHITE = 37
 # Option flags set by user at cli
 
 # use ANSI color sequences
-use_color = False
+USE_COLOR = False
 
 # add color to the game's timestamp
-color_time = False
+COLOR_TIME = False
 
 # use a black background
-black_background = False
+BLACK_BACKGROUND = False
 
 # use bright (or bold) colors
-use_bright = False
+USE_BRIGHT = False
 
 
 def color(clr, text):
@@ -74,13 +74,13 @@ def color(clr, text):
         :param text: the text string to color
         :return: the text with the proper ANSI prefix and suffix bytes
     """
-    if not use_color:
+    if not USE_COLOR:
         return text
     background_color = ''
-    if black_background:
+    if BLACK_BACKGROUND:
         background_color = ';40'
     prefix = '0;'
-    if use_bright:
+    if USE_BRIGHT:
         prefix = '1;'
 
     return ''.join([ANSI_PRE, prefix, str(clr), background_color, ANSI_POST, text, ANSI_RESET])
@@ -139,19 +139,19 @@ def get_teams(game):
     # if team2.find('Canadiens') >= 0:
     #     team2 = 'Montreal Canadiens'
 
-    if team1 in favorites or team2 in favorites:
+    if team1 in FAVORITES or team2 in FAVORITES:
         note1 = '*'
-    if team1 in rivals or team2 in rivals:
+    if team1 in RIVALS or team2 in RIVALS:
         note2 = '!'
 
     # Add optional ANSI color sequences to favorite and rival team names
-    if team1 in favorites:
+    if team1 in FAVORITES:
         team1 = color(GREEN, team1)
-    if team2 in favorites:
+    if team2 in FAVORITES:
         team2 = color(GREEN, team2)
-    if team1 in rivals:
+    if team1 in RIVALS:
         team1 = color(RED, team1)
-    if team2 in rivals:
+    if team2 in RIVALS:
         team2 = color(RED, team2)
 
     return team1, team2, note1 + note2
@@ -174,7 +174,7 @@ def create_games_dict(all_games):
 
         # Create game time string
         game_time_str = game_time.strftime('%I:%M ' + am_pm_str)
-        if color_time:
+        if COLOR_TIME:
             game_time_str = color(BLUE, game_time_str)
 
         # Get the teams involved
@@ -277,24 +277,20 @@ def process_command_line(argv):
     process the command line options arguments
     :param argv: list of arguments passed on the command line
     """
-    global use_color, black_background, color_time, use_bright
+    global USE_COLOR, BLACK_BACKGROUND, COLOR_TIME, USE_BRIGHT
     nhl_api_url = 'https://statsapi.web.nhl.com/api/v1/schedule'
-    mlb_api_url = 'https://statsapi.mlb.com/api/v1/schedule?sportId=1'
+    mlb_api_url = 'https://statsapi.mlb.com/api/v1/schedule?sportid=1'
     json_data = {}
     sport_name = ''
 
     for cmd in argv:
         cmd = cmd.upper()
-        if cmd == 'C':
-            use_color = True
-        elif cmd == 'I':
-            use_bright = True
-        elif cmd == 'K':
-            black_background = True
-        elif cmd == 'T':
-            color_time = True
-        elif cmd == 'N':
-            use_color = False
+        USE_COLOR = True if cmd == 'C' else False
+        USE_BRIGHT = True if cmd == 'I' else False
+        BLACK_BACKGROUND = True if cmd == 'K' else False
+        COLOR_TIME = True if cmd == 'T' else False
+        USE_COLOR = False if cmd == 'N' else False
+
         if cmd == 'H':
             json_data = get_json_data(nhl_api_url)
             sport_name = 'hockey'
