@@ -279,7 +279,7 @@ def process_command_line(argv):
     """
     global USE_COLOR, BLACK_BACKGROUND, COLOR_TIME, USE_BRIGHT
     nhl_api_url = 'https://statsapi.web.nhl.com/api/v1/schedule'
-    mlb_api_url = 'https://statsapi.mlb.com/api/v1/schedule?sportid=1'
+    mlb_api_url = 'https://statsapi.mlb.com/api/v1/schedule?sportId=1'
     json_data = {}
     sport_name = ''
 
