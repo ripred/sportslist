@@ -55,7 +55,7 @@ class SportsTests(unittest.TestCase):
     def test_4_function_runs(self):
         """Basic smoke test: Does the function run?"""
         print()
-        sports.process_command_line(['sports.py', 'h'])
+        sports.process_command_line(['sports.py', 'c', 't', 'h'])
 
 
 if __name__ == '__main__':

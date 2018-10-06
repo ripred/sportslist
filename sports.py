@@ -10,6 +10,7 @@ the day's hockey and/or baseball games
 
 import sys
 import ssl
+import urllib
 import urllib.request
 import json
 from datetime import datetime
@@ -213,8 +214,11 @@ def get_json_data(api_url):
     :param api_url: the url to retrieve the data from
     :return: returns the json data as a string
     """
-    ssl._create_default_https_context = ssl._create_unverified_context
-    with urllib.request.urlopen(api_url) as url:
+    ssl_context = ssl.create_default_context()
+    ssl_context.check_hostname = False
+    ssl_context.verify_mode = ssl.CERT_NONE
+    # ssl._create_default_https_context = ssl._create_unverified_context
+    with urllib.request.urlopen(api_url, context=ssl_context) as url:
         http_info = url.info()
         raw_data = url.read().decode(http_info.get_content_charset())
         json_data = json.loads(raw_data)
@@ -222,7 +226,7 @@ def get_json_data(api_url):
 #   create_test_data_file('test.json', json_data)
 
 
-def get_games_count(json_data: dict):
+def get_games_count(json_data):
     """
     get the number of games contained in the specified json data
     :param json_data: a string containing the json data retrieved from a previous web REST api call
@@ -236,14 +240,14 @@ def get_games_count(json_data: dict):
 
 def get_todays_games(json_data):
     """
-    create a dictionary of game description strings
+    create a dictionary of game description string
     values with start time keys. Also create a list
     of those keys sorted in ascending start time order.
 
     :param json_data: dictionary of games data from the web
     :return: returns a tuple of the game_dict, display_keys
     """
-    # Sort the games based on start time and print them
+    # Sort the games based on start time
     all_games = json_data['dates'][0]['games']
     game_dictionary = create_games_dict(all_games)
     sorted_games = sorted(game_dictionary.keys())
@@ -253,7 +257,7 @@ def get_todays_games(json_data):
 
 def output_todays_games(games_dict, key_list, sport_name):
     """
-    output today's games and their start times in ascending order
+    output today's games in ascending order by their start times
 
     :param games_dict: the dictionary of game times to game descriptions
     :param key_list: list of gametime keys sorted in ascending order
@@ -283,13 +287,13 @@ def process_command_line(argv):
     json_data = {}
     sport_name = ''
 
-    for cmd in argv:
+    for cmd in argv[1:]:
         cmd = cmd.upper()
-        USE_COLOR = True if cmd == 'C' else False
-        USE_BRIGHT = True if cmd == 'I' else False
-        BLACK_BACKGROUND = True if cmd == 'K' else False
-        COLOR_TIME = True if cmd == 'T' else False
-        USE_COLOR = False if cmd == 'N' else False
+        USE_COLOR = True if cmd == 'C' else USE_COLOR
+        USE_BRIGHT = True if cmd == 'I' else USE_BRIGHT
+        BLACK_BACKGROUND = True if cmd == 'K' else BLACK_BACKGROUND
+        COLOR_TIME = True if cmd == 'T' else COLOR_TIME
+        USE_COLOR = False if cmd == 'N' else USE_COLOR
 
         if cmd == 'H':
             json_data = get_json_data(nhl_api_url)
