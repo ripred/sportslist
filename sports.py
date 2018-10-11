@@ -224,6 +224,7 @@ def get_json_data(api_url):
         json_data = json.loads(raw_data)
         return json_data
 #   create_test_data_file('test.json', json_data)
+    return {}
 
 
 def get_games_count(json_data):
@@ -248,10 +249,11 @@ def get_todays_games(json_data):
     :return: returns a tuple of the game_dict, display_keys
     """
     # Sort the games based on start time
+    if not 'dates' in json_data or not json_data['dates']:
+        return {}, {}
     all_games = json_data['dates'][0]['games']
     game_dictionary = create_games_dict(all_games)
     sorted_games = sorted(game_dictionary.keys())
-
     return game_dictionary, sorted_games
 
 
