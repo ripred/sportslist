@@ -1,12 +1,13 @@
 # Description
 
 This python3 script will retrieve today's MLB or NHL games and
-display them ordered by start time, in your local time.
+display them ordered by start time, in your local time.  
+This is written using [my other nhl api repo](https://github.com/ripred/nhlapi)
 
 You can edit the file to set your favorite teams and rivals in
 order to see them highlighted in color in the output.
 
-This script is very useful in combination with GeekTool!
+This script is very useful in combination with GeekTool or Conky!
 
 # Running the script
 
