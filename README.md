@@ -28,7 +28,8 @@ Invoke the script using:
 specified (h or b) that comes after them.  This allows you to turn on and off
 output decorations while outputting the list.*
 
-## Example Use. Sent to a display file every 5 minutes and then overlayed on my desktop using GeekTool:
+## Example Use. 
+Sent to a display file every 5 minutes and then overlayed on my desktop using GeekTool:
 
 #### `python3 sports.py c t b`
 
