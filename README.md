@@ -30,5 +30,7 @@ output decorations while outputting the list.*
 
 ## Example Use:
 
-#### `python3 sports.py c t h`
+#### `python3 sports.py c t b`
+
+![alt text](SportsUsingGeekTool.png)
 
